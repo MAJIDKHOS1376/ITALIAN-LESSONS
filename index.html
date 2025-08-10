@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>B1 • درس ۱ — Pronomi diretti + Viaggio (Precision)</title>
+<style>
+:root{color-scheme:dark}
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:#0b1222;color:#e5e7eb}
+header{position:sticky;top:0;background:#0b1222cc;border-bottom:1px solid #1f2937;backdrop-filter:blur(6px)}
+.container{max-width:1100px;margin:0 auto;padding:12px 16px}
+.title{font-weight:800;font-size:22px;margin:0}.muted{opacity:.75;font-size:14px}
+.card{border:1px solid #1f2937;border-radius:16px;padding:14px;background:#0e162b}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.btn{background:#fff;color:#0b1222;border:0;padding:8px 12px;border-radius:12px;cursor:pointer}
+.btn.secondary{background:#d1d5db;color:#111827}
+.tabs{display:flex;gap:8px;margin:12px 0;flex-wrap:wrap}
+.tab{border:1px solid #334155;padding:6px 10px;border-radius:10px;cursor:pointer}
+.tab.active{background:#1f2937}
+.grid{display:grid;gap:12px}
+.youtube{aspect-ratio:16/9;width:100%;border-radius:12px;border:1px solid #1f2937;overflow:hidden}
+.vocab-pill{display:inline-block;margin:3px;padding:4px 8px;border:1px solid #334155;border-radius:999px;cursor:pointer}
+.reading span.token{padding:1px 3px;border-radius:6px;cursor:pointer}
+.reading span.token.hit{background:#1e293b;border-bottom:1px dashed #64748b}
+.modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;backdrop-filter:blur(3px);background:#0b1222aa;z-index:50}
+.modal .box{max-width:640px;width:92%;background:#0e162b;border:1px solid #1f2937;border-radius:16px;padding:16px}
+.close{float:left;cursor:pointer;font-weight:700}
+.k{font-weight:700;color:#93c5fd}
+details{border:1px dashed #334155;border-radius:10px;padding:8px}summary{cursor:pointer}
+.settings-btn{position:fixed;bottom:14px;left:14px}
+.label{font-size:13px;opacity:.8}
+input,textarea{background:#0b1326;color:#e5e7eb;border:1px solid #334155;border-radius:10px;padding:8px}
+</style>
+</head>
+<body>
+<header>
+  <div class="container row">
+    <div class="title">B1 • درس ۱ — Pronomi diretti + Viaggio (Precision)</div>
+    <div class="muted">سه جلسه + درسنامه + تصحیح دقیق (آفلاین/آنلاین)</div>
+  </div>
+</header>
+
+<main class="container">
+  <div class="tabs">
+    <div class="tab active" data-tab="s1">جلسه ۱</div>
+    <div class="tab" data-tab="s2">جلسه ۲</div>
+    <div class="tab" data-tab="s3">جلسه ۳</div>
+  </div>
+  <div id="view"></div>
+</main>
+
+<button class="btn secondary settings-btn" onclick="openSettings()">تنظیمات</button>
+
+<!-- Dictionary modal -->
+<div class="modal" id="dictModal">
+  <div class="box">
+    <div class="row" style="justify-content:space-between">
+      <div class="title" id="dw"></div>
+      <div class="close" onclick="hideModal('dictModal')">×</div>
+    </div>
+    <div>
+      <div><span class="k">معنی (FA):</span> <span id="dfa"></span></div>
+      <div><span class="k">تعریف (IT):</span> <span id="dit"></span></div>
+      <div><span class="k">مترادف‌ها:</span> <span id="dsyn"></span></div>
+      <div><span class="k">خانواده واژگان:</span> <span id="dfam"></span></div>
+      <div><span class="k">مثال ۱:</span> <div id="dex1" class="muted"></div></div>
+      <div><span class="k">مثال ۲:</span> <div id="dex2" class="muted"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- Settings modal -->
+<div class="modal" id="settingsModal">
+  <div class="box">
+    <div class="row" style="justify-content:space-between">
+      <div class="title">تنظیمات تصحیح آنلاین</div>
+      <div class="close" onclick="hideModal('settingsModal')">×</div>
+    </div>
+    <div class="row" style="flex-direction:column;align-items:stretch;">
+      <label class="label">OpenAI API Key</label>
+      <input id="apiKey" placeholder="sk-..." />
+      <label class="label">Model</label>
+      <input id="modelName" value="gpt-4o-mini" />
+      <button class="btn" onclick="saveSettings()">ذخیره</button>
+      <div class="muted">کلید فقط در مرورگر تو ذخیره می‌شود (localStorage).</div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== Data (B1 – Lesson 1) =====
+const DATA = {
+  id: "b1_01",
+  title: "B1 • درس ۱ — Pronomi diretti + Viaggio",
+  grammar: {
+    focus: "Uso di lo, la, li, le in contesto viaggio",
+    parts: [
+      "Posizione dei pronomi diretti: prima del verbo (lo/la/li/le).",
+      "Passato prossimo: accordo col participio se il pronome è prima (L’ho vista / Li ho incontrati).",
+      "Verbi di viaggio con pronomi: Prenoto la camera → <b>La</b> prenoto; Confermo la prenotazione → <b>La</b> confermo."
+    ]
+  },
+  vocab: [
+    V("prenotazione","رزرو","atto di prenotare",["riservazione"],["prenotare","prenotato"],"Ho fatto una prenotazione.","La prenotazione è a nome Sara."),
+    V("itinerario","برنامه سفر","percorso pianificato",["percorso"],["itinerante"],"L’itinerario è di tre giorni.","Cambiamo l’itinerario se piove."),
+    V("sistemazione","محل اقامت","alloggio temporaneo",["alloggio"],["sistemare"],"Cerco una sistemazione economica.","La sistemazione è confortevole."),
+    V("albergo","هتل","struttura ricettiva",["hotel"],["albergatore"],"L’albergo è vicino al centro.","Questo albergo ha la colazione inclusa."),
+    V("ostello","هاستل","alloggio condiviso economico",["dormitorio"], [],"In ostello risparmio.","L’ostello è pulito."),
+    V("appartamento","آپارتمان","abitazione in affitto",["alloggio"],["appartare"],"Affitto un appartamento.","L’appartamento è luminoso."),
+    V("tariffa","تعرفه","prezzo di un servizio",["prezzo"], [],"La tariffa per notte è alta.","Le tariffe cambiano."),
+    V("convenienza","صرفه اقتصادی","vantaggio economico",["vantaggio"],["conveniente"],"Valuto la convenienza.","Non c’è convenienza."),
+    V("prenotazione anticipata","رزرو زودهنگام","prenotazione prima del tempo",["early booking"], [],"Conviene la prenotazione anticipata.","Con la prenotazione anticipata risparmi."),
+    V("caparra","بیعانه","somma versata in anticipo",["anticipo"], [],"Devo lasciare una caparra.","La caparra non è rimborsabile."),
+    V("check-in","تسویه ورود","procedura di arrivo",["registrazione"], [],"Il check-in è alle 14.","Facciamo il check-in online."),
+    V("check-out","تسویه خروج","procedura di partenza",["uscita"], [],"Il check-out è a mezzogiorno.","Late check-out, per favore."),
+    V("documento","مدرک هویتی","carta d’identità/passaporto",["identità"], [],"Mostri un documento.","Ho dimenticato i documenti."),
+    V("biglietto","بلیط","titolo di viaggio",["ticket"],["biglietteria"],"Ho perso il biglietto.","I biglietti sono esauriti."),
+    V("ricevuta","رسید","prova di pagamento",["scontrino"],["ricevere"],"Mi serve la ricevuta.","La ricevuta è digitale."),
+    V("rimborso","بازپرداخت","restituzione del denaro",["restituzione"],["rimborsare"],"Chiedo il rimborso.","Il rimborso arriva in 5 giorni."),
+    V("ritardo","تاخیر","arrivo oltre orario",["tardanza"],["ritardare"],"Il treno ha ritardo.","Mi scuso per il ritardo."),
+    V("coincidenza","اتصال/ترانزیت","cambio di mezzo",["trasferimento"],["coincidere"],"Perdo la coincidenza.","La coincidenza è breve."),
+    V("tratta","مسیر (حمل‌ونقل)","segmento di percorso",["percorso"],["trattare"],"Questa tratta è lunga.","Cambio tratta."),
+    V("capolinea","ایستگاه پایانی","ultima fermata",["terminale"], [],"Scendiamo al capolinea.","Il capolinea è lontano."),
+    V("sportello informazioni","گیشه اطلاعات","desk informativo",["sportello"],["sportellista"],"Vai allo sportello informazioni.","Lo sportello chiude alle 18."),
+    V("valigia","چمدان","bagaglio",["bagaglio"],["valigiato"],"La valigia è pesante.","Fai la valigia stasera."),
+    V("zaino","کوله","borsa sulle spalle",["sacca"], [],"Porto uno zaino leggero.","Lo zaino è comodo."),
+    V("trasferimento","ترنسفر/انتقال","spostamento organizzato",["navetta"],["trasferire"],"Trasferimento dall’aeroporto incluso.","Prenoto un trasferimento."),
+    V("navetta","شاتل","mezzo di collegamento",["shuttle"], [],"C’è una navetta gratuita?","La navetta parte ogni 30 minuti."),
+    V("cassaforte","گاوصندوق","box di sicurezza",["cassetta di sicurezza"], [],"Metti i documenti in cassaforte.","La cassaforte non funziona."),
+    V("accoglienza","پذیرش/مهمان‌نوازی","ospitalità",["ospitalità"],["accogliere"],"L’accoglienza è ottima.","Apprezzo l’accoglienza."),
+    V("colazione inclusa","صبحانه شامل","breakfast incluso",["B&B"], [],"La colazione inclusa è a buffet.","La colazione non è inclusa."),
+    V("mezza pensione","نیم‌پانسیون","colazione + cena",[], [],"Preferisco la mezza pensione.","La mezza pensione conviene."),
+    V("pensione completa","فول‌برد","colazione+pranzo+cena",[], [],"La pensione completa è costosa.","Offrono pensione completa?"),
+    V("disponibile","در دسترس","che si può usare",["libero"],["disponibilità"],"È disponibile una doppia?","Non sono disponibile."),
+    V("camera doppia","اتاق دو نفره","stanza per due",["doppia"], [],"Una camera doppia, per favore.","La camera doppia ha balcone."),
+    V("matrimoniale","دبل","letto matrimoniale",[], [],"Preferisco matrimoniale.","La matrimoniale è occupata."),
+    V("singola","تک‌نفره","stanza per una persona",[], [],"Una singola va bene.","La singola è piccola."),
+    V("vista sul mare","ویو دریا","affaccio sul mare",[], [],"La voglio con vista sul mare.","Non c’è vista sul mare."),
+    V("prenotare","رزرو کردن","riservare",["riservare"],["prenotazione"],"Prenoto per due notti.","Hai prenotato l’albergo?"),
+    V("confermare","تأیید کردن","rendere definitivo",["convalidare"],["conferma"],"Confermo la prenotazione.","Confermi l’orario?"),
+    V("cancellare","لغو کردن","annullare",["disdire"],["cancellazione"],"Posso cancellare senza penale?","Hanno cancellato il volo."),
+    V("modificare","تغییر دادن","cambiare",["variare"],["modifica"],"Voglio modificare la data.","Facciamo una modifica."),
+    V("penale","جریمه/کارمزد لغو","costo di cancellazione",["multa"], [],"C’è una penale?","Qual è la penale?"),
+    V("reclamo","شکایت","protesta formale",["lamentela"],["reclamare"],"Faccio un reclamo.","Il reclamo è stato accettato."),
+    V("prenotazione flessibile","رزرو انعطاف‌پذیر","modificabile senza penali",["tariffa flessibile"], [],"Preferisco la prenotazione flessibile.","Non è flessibile."),
+    V("pagamento","پرداخت","atto di pagare",["saldo"],["pagare","pagato"],"Il pagamento è online.","Paghi al check-in."),
+    V("contanti","نقد","denaro in monete/banconote",["cash"], [],"Pago in contanti.","Accettate contanti?"),
+    V("carta di credito","کارت اعتباری","carta per pagare",["bancomat"], [],"Pago con carta di credito.","La carta non funziona.")
+  ],
+  podcasts: [
+    {src:"https://www.youtube.com/watch?v=dY8q_WwmPkU", task:"Ascolta e annota 10 frasi utili per prenotare e chiedere informazioni."},
+    {src:"https://www.youtube.com/watch?v=xT4TAP8-IvY", task:"Ripeti frasi con pronomi diretti in contesto viaggio (shadowing ×3)."}
+  ],
+  reading: "Ieri ho preparato un itinerario di tre giorni per visitare una città che non conoscevo. Per risparmiare ho fatto una prenotazione anticipata in un albergo vicino al centro storico e ho controllato le tariffe di diverse sistemazioni. Alla fine ho scelto una struttura con colazione inclusa: in questo modo, ogni mattina potevo uscire presto senza perdere tempo. Il primo giorno volevo vedere i monumenti principali, ma c’è stato un imprevisto: il mio volo ha avuto un ritardo di un’ora e ho perso la coincidenza del treno locale. Allo sportello informazioni mi hanno spiegato la nuova tratta e mi hanno dato una ricevuta per il rimborso. Arrivato a destinazione, ho fatto il check-in e ho lasciato la valigia in camera; poi, per comodità, ho prenotato un trasferimento per il giorno dopo. La sera, ho passeggiato lungo il fiume e ho capito che l’accoglienza delle persone era davvero calorosa. Il secondo giorno ho cambiato l’itinerario per visitare un quartiere meno turistico: a conti fatti è stata una buona idea, perché ho speso poco e ho scoperto ristoranti ottimi. Al capolinea dell’autobus, però, era tutto affollato e ho dovuto aspettare a lungo. Infine, il terzo giorno, ho deciso di restare ancora un po’ e di organizzare il check-out nel pomeriggio. Ho confermato la prenotazione flessibile e mi sono assicurato che i documenti fossero in cassaforte. È stato un viaggio semplice, ma molto istruttivo: ho imparato a gestire gli imprevisti e a valutare la convenienza prima di scegliere.",
+  writing: "یک روایت ۱۲۰ کلمه‌ای از آخرین سفرت بنویس و حداقل ۸ واژه از این درس را استفاده کن.",
+  quizzes: {
+    s1: [
+      {type:"cloze", q:"___ confermo per domani. (prenotazione) → ___ confermo.", a:["La","la"]},
+      {type:"cloze", q:"Hai i documenti? Sì, ___ ho messi in cassaforte.", a:["li"]},
+      {type:"choice",q:"Qual è più naturale?",options:["Ho visto la camera.","L’ho vista."],a:0},
+      {type:"cloze", q:"Ho perso la ___ e chiedo il ___.", a:["coincidenza","rimborso"]},
+      {type:"choice",q:"Se il treno ha ritardo, vado allo…",options:["capolinea","sportello informazioni"],a:1}
+    ],
+    s2: [
+      {type:"cloze", q:"Serve una camera ___ con ___ sul mare.", a:["doppia","vista"]},
+      {type:"choice",q:"Cos’è un costo di cancellazione?",options:["caparra","penale"],a:1},
+      {type:"cloze", q:"Preferisco la prenotazione ___: se cambia il piano, ___ modifico.", a:["flessibile","la"]}
+    ],
+    final: [
+      {type:"cloze", q:"___ facciamo il check-__, poi lasciamo la ___ in camera.", a:["Prima","in","valigia"]},
+      {type:"choice",q:"Accordo corretto col participio:",options:["L’ho visto la ricevuta.","L’ho vista."],a:1},
+      {type:"choice",q:"Che significa ‘shuttle’?",options:["navetta","tratta"],a:0}
+    ]
+  }
+};
+
+// ===== Helpers =====
+function V(w,fa,it,syn=[],fam=[],ex1="",ex2=""){return {w,fa,it,syn,fam,ex1,ex2}}
+function qs(s,e=document){return e.querySelector(s)}
+function el(t,a={},k=[]){const e=document.createElement(t);for(const [x,v] of Object.entries(a)){if(x==='class')e.className=v;else if(x==='html')e.innerHTML=v;else e.setAttribute(x,v)}k.forEach(i=>e.appendChild(typeof i==='string'?document.createTextNode(i):i));return e}
+function showModal(id){qs('#'+id).style.display='flex'}
+function hideModal(id){qs('#'+id).style.display='none'}
+document.addEventListener('keydown',ev=>{if(ev.key==='Escape')document.querySelectorAll('.modal').forEach(m=>m.style.display='none')})
+
+// Settings
+function openSettings(){const k=localStorage.getItem('openai_key')||'';const m=localStorage.getItem('openai_model')||'gpt-4o-mini';qs('#apiKey').value=k;qs('#modelName').value=m;showModal('settingsModal')}
+function saveSettings(){localStorage.setItem('openai_key',qs('#apiKey').value.trim());localStorage.setItem('openai_model',qs('#modelName').value.trim());hideModal('settingsModal')}
+
+// Dictionary
+let DICT={}
+const MULTI = new Set(["sportello informazioni","prenotazione anticipata","colazione inclusa","mezza pensione","pensione completa","camera doppia","vista sul mare","check-in","check-out","carta di credito"]);
+function buildDict(){DICT={};(DATA.vocab||[]).forEach(v=> DICT[v.w.toLowerCase()] = v)}
+function showDict(key){
+  const v=DICT[key]; const id='dictModal';
+  if(!v){qs('#dw').textContent=key;qs('#dfa').textContent='—';qs('#dit').textContent='—';qs('#dsyn').textContent='—';qs('#dfam').textContent='—';qs('#dex1').textContent='—';qs('#dex2').textContent='—'}
+  else{qs('#dw').textContent=v.w;qs('#dfa').textContent=v.fa||'—';qs('#dit').textContent=v.it||'—';qs('#dsyn').textContent=(v.syn||[]).join(', ')||'—';qs('#dfam').textContent=(v.fam||[]).join(', ')||'—';qs('#dex1').textContent=v.ex1||'—';qs('#dex2').textContent=v.ex2||'—'}
+  showModal(id);
+}
+
+// Reading tokenizer (multi-word aware)
+function tokenizeReading(text){
+  const wrap = el('div',{class:'reading'});
+  let replaced = text;
+  MULTI.forEach(mw=>{
+    const re = new RegExp(mw.replace(/[-/\\^$*+?.()|[\\]{}]/g,'\\$&'),'gi');
+    replaced = replaced.replace(re, m=>`[[[MW:${m}]]]`);
+  });
+  const parts = replaced.split(/(\\s+|[,.!?;:()\\[\\]])/);
+  parts.forEach(tok=>{
+    if(!tok)return;
+    if(tok.startsWith('[[[MW:')){ const word=tok.slice(6,-3); const key=word.toLowerCase(); const s=el('span',{class:'token hit'},[word]); s.onclick=()=>showDict(key); wrap.appendChild(s); return; }
+    const clean = tok.replace(/^[^\\p{L}\\p{N}’']+|[^\\p{L}\\p{N}’']+$/gu,'');
+    const key = clean.toLowerCase();
+    if(DICT[key]){ const s=el('span',{class:'token hit'},[tok]); s.onclick=()=>showDict(key); wrap.appendChild(s); }
+    else wrap.appendChild(document.createTextNode(tok));
+  });
+  return wrap;
+}
+
+// Quizzes
+function quizBox(arr){
+  const wrap = el('div',{class:'grid'});
+  arr.forEach((q,i)=>{
+    const box = el('div',{class:'card'},[]);
+    box.appendChild(el('div',{class:'muted'},['سوال ',String(i+1)]));
+    box.appendChild(el('p',{},[q.q]));
+    if(q.type==='cloze'){
+      const inputs=q.a.map(()=>el('input',{type:'text',style:'margin:2px'}));
+      const check=el('button',{class:'btn secondary'},['تصحیح']);
+      const res=el('div',{class:'muted'});
+      check.onclick=()=>{const norm=s=>s.replace(/’/g,"'").toLowerCase().trim();const user=inputs.map(i=>norm(i.value)).join('|');const correct=q.a.map(norm).join('|');res.textContent=(user===correct)?'درست':'غلط — '+q.a.join(' | ')};
+      inputs.forEach(i=>box.appendChild(i)); box.appendChild(el('div',{style:'height:6px'})); box.appendChild(check); box.appendChild(res);
+    }else if(q.type==='choice'){
+      const group='g'+Math.random(); const opts=q.options.map((opt,ix)=>{const lab=el('label',{class:'row'},[]); const r=el('input',{type:'radio',name:group,value:String(ix)}); lab.appendChild(r); lab.appendChild(el('span',{},[opt])); return lab;});
+      const check=el('button',{class:'btn secondary'},['تصحیح']); const res=el('div',{class:'muted'});
+      check.onclick=()=>{let chosen=null; opts.forEach(o=>{const inp=o.querySelector('input'); if(inp.checked) chosen=inp.value;}); res.textContent=(String(chosen)===String(q.a))?'درست':'غلط — '+q.options[q.a];};
+      opts.forEach(o=>box.appendChild(o)); box.appendChild(check); box.appendChild(res);
+    }
+    wrap.appendChild(box);
+  });
+  return wrap;
+}
+
+// Writing offline grader
+function gradeWritingOffline(text){
+  const out={};
+  const t=(text||'').normalize('NFC').replace(/\\s+/g,' ').trim();
+  const words=t? t.split(/\\s+/):[];
+  const lower=t.toLowerCase();
+  out.pronoun_usage=/(\\blo\\b|\\bla\\b|\\bli\\b|\\ble\\b|l’|l')\\s+(ho|hai|ha|abbiamo|avete|hanno)\\s+\\w+/i.test(lower);
+  const targets=Object.keys(DICT); let hit=0; targets.forEach(k=>{ if(lower.includes(k)) hit++; });
+  out.vocab_hits=hit; out.vocab_total=Math.min(45,targets.length); out.word_count=words.length;
+  const lenScore=Math.min(1,out.word_count/120), vocabScore=Math.min(1,out.vocab_hits/8), pronScore=out.pronoun_usage?1:0;
+  out.score=Math.round((0.4*lenScore+0.4*vocabScore+0.2*pronScore)*100); return out;
+}
+
+// Online grading (optional)
+async function gradeOnline(text,type='writing'){
+  const key=localStorage.getItem('openai_key'); const model=localStorage.getItem('openai_model')||'gpt-4o-mini';
+  if(!key) throw new Error('API key خالی است.');
+  const rubric = type==='writing'
+    ? "Correggi il testo (italiano B1). Evidenzia: 1) errori grammaticali (con spiegazione breve in persiano), 2) suggerimenti lessicali usando il vocabolario di viaggio (lista allegata), 3) riscrittura corretta. JSON: errors[], suggestions[], rewrite."
+    : "Valuta la trascrizione parlata (italiano B1). Indica errori frequenti, suggerisci 5 frasi migliori e dai un voto 0-100. JSON: errors[], suggestions[], score.";
+  const vocabList = Object.keys(DICT).join(', ');
+  const payload = {model, messages:[
+    {role:'system',content:'Sei un insegnante di italiano B1/B2 che restituisce output in JSON.'},
+    {role:'user',content:`Rubrica: ${rubric}\nVocabolario target: ${vocabList}\nTESTO:\n`+text}
+  ], temperature:0.2};
+  const res = await fetch('https://api.openai.com/v1/chat/completions',{
+    method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+key}, body:JSON.stringify(payload)
+  });
+  if(!res.ok) throw new Error('خطا در تماس با API');
+  const data = await res.json(); return (data.choices?.[0]?.message?.content)||"";
+}
+
+// Speaking box
+function speakingBox(){
+  const box=el('div',{class:'card'},[]);
+  box.appendChild(el('h3',{},['Speaking تعاملی (آفلاین)']));
+  box.appendChild(el('div',{class:'muted'},['روی Start بزن و ۶۰ ثانیه درباره رزرو اتاق صحبت کن.']));
+  const out=el('textarea',{rows:'6',placeholder:'Transcript...'},[]), res=el('div',{class:'muted'},[]);
+  const start=el('button',{class:'btn'},['Start']), stop=el('button',{class:'btn secondary'},['Stop']);
+  let rec=null;
+  if('webkitSpeechRecognition' in window){const R=new webkitSpeechRecognition();R.lang='it-IT';R.interimResults=true;R.onresult=e=>{let s='';for(let i=0;i<e.results.length;i++) s+=e.results[i][0].transcript+' '; out.value=s.trim();}; rec=R;}
+  else res.textContent='مرورگر از ضبط گفتار داخلی پشتیبانی نمی‌کند؛ متن را دستی تایپ کن.';
+  start.onclick=()=>{if(rec)rec.start()}; stop.onclick=()=>{if(rec)rec.stop()};
+  const off=el('button',{class:'btn secondary'},['ارزیابی آفلاین']);
+  off.onclick=()=>{const g=gradeWritingOffline(out.value||''); res.textContent='امتیاز: '+g.score+'/100 — واژگان: '+g.vocab_hits+' — طول: '+g.word_count+' — ضمیر مستقیم: '+(g.pronoun_usage?'✓':'✗');};
+  const on=el('button',{class:'btn'},['ارزیابی آنلاین']);
+  on.onclick=async()=>{try{res.textContent='در حال ارزیابی آنلاین...'; const ans=await gradeOnline(out.value||'', 'speaking'); res.textContent=ans;}catch(e){res.textContent='خطا: '+e.message;}};
+  box.appendChild(el('div',{class:'row'},[start,stop,off,on])); box.appendChild(out); box.appendChild(res); return box;
+}
+
+// Lesson notes
+function lessonNote(t,blocks){const card=el('div',{class:'card'},[]);card.appendChild(el('h3',{},[t]));blocks.forEach(b=>card.appendChild(el('div',{class:'muted',html:b})));return card}
+
+// Vocab pills, YouTube
+function vocabPills(sub){const box=el('div',{},[]);sub.forEach(w=>{const p=el('span',{class:'vocab-pill'},[w.w]); p.onclick=()=>showDict(w.w.toLowerCase()); box.appendChild(p)});return box}
+function youtubeEmbed(u){const src=u.replace('watch?v=','embed/').split('&')[0]; return el('iframe',{class:'youtube',src,title:'YouTube',allow:'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share',allowfullscreen:'true'})}
+
+// Sessions
+function renderS1(c){
+  c.appendChild(lessonNote('📚 درسنامه — Pronomi diretti (بخش ۱–۲)',[
+    'کاربرد: جایگزین مفعول مستقیم. <b>lo, la, li, le</b> پیش از فعل.',
+    'نمونه: Vedo Marco → <b>Lo</b> vedo. | Mangio la pizza → <b>La</b> mangio.',
+    'Passato prossimo: <i>L’ho vista</i>, <i>Li ho incontrati</i>.'
+  ]));
+  c.appendChild(lessonNote('📚 درسنامه واژگان — سفر (هتل/حمل‌ونقل)',[
+    'بسته A: prenotazione, itinerario, sistemazione, albergo, ostello, appartamento, tariffa, convenienza, <b>prenotazione anticipata</b>, caparra, <b>check-in</b>, <b>check-out</b>, documento, biglietto, ricevuta, rimborso, ritardo, coincidenza, tratta, capolinea.'
+  ]));
+  const voc=el('div',{class:'card'},[]); voc.appendChild(el('h3',{},['واژگان (بسته A)'])); voc.appendChild(vocabPills(DATA.vocab.slice(0,20))); c.appendChild(voc);
+  const p1=el('div',{class:'card'},[]); p1.appendChild(el('h3',{},['Podcast 1'])); p1.appendChild(el('div',{class:'muted'},[DATA.podcasts[0].task])); p1.appendChild(youtubeEmbed(DATA.podcasts[0].src)); c.appendChild(p1);
+  const q1=el('div',{class:'card'},[]); q1.appendChild(el('h3',{},['تمرین گرامر/واژگان'])); q1.appendChild(quizBox(DATA.quizzes.s1)); c.appendChild(q1);
+}
+function renderS2(c){
+  c.appendChild(lessonNote('📚 درسنامه — Pronomi diretti (بخش ۳: کاربردهای سفر)',[
+    'Prenoto una camera → <b>La</b> prenoto. | Confermo la prenotazione → <b>La</b> confermo.',
+    'نکته: ضمیر و اسم را با هم تکرار نکن.'
+  ]));
+  c.appendChild(lessonNote('📚 درسنامه واژگان — امکانات و رزرو',[
+    'بسته B: sportello informazioni, valigia, zaino, trasferimento, navetta, cassaforte, accoglienza, <b>colazione inclusa</b>, mezza pensione, pensione completa, disponibile, camera doppia, matrimoniale, singola, <b>vista sul mare</b>.'
+  ]));
+  const voc=el('div',{class:'card'},[]); voc.appendChild(el('h3',{},['واژگان (بسته B)'])); voc.appendChild(vocabPills(DATA.vocab.slice(20,35))); c.appendChild(voc);
+  const p2=el('div',{class:'card'},[]); p2.appendChild(el('h3',{},['Podcast 2'])); p2.appendChild(el('div',{class:'muted'},[DATA.podcasts[1].task])); p2.appendChild(youtubeEmbed(DATA.podcasts[1].src));
+  const det=el('details',{},[]); det.appendChild(el('summary',{},['چطور Listening کنیم؟'])); det.appendChild(el('ol',{},[el('li',{},['یک بار با زیرنویس، یک بار بدون.']),el('li',{},['۵ عبارت را یادداشت کن و تقلید کن.']),el('li',{},['یک پاسخ ۶۰ ثانیه‌ای بساز.'])])); p2.appendChild(det); c.appendChild(p2);
+  c.appendChild(speakingBox());
+  const q2=el('div',{class:'card'},[]); q2.appendChild(el('h3',{},['تمرین تکمیلی'])); q2.appendChild(quizBox(DATA.quizzes.s2)); c.appendChild(q2);
+}
+function renderS3(c){
+  c.appendChild(lessonNote('📚 درسنامه واژگان — اصطلاحات و افعال مرکب',[
+    'بسته C: prenotare, confermare, cancellare, modificare, penale, reclamo, <b>prenotazione flessibile</b>, pagamento, contanti, <b>carta di credito</b>.'
+  ]));
+  const r=el('div',{class:'card'},[]); r.appendChild(el('h3',{},['Reading (متن بلند) — روی واژه‌های هدف کلیک کن'])); r.appendChild(tokenizeReading(DATA.reading));
+  const det=el('details',{},[]); det.appendChild(el('summary',{},['راهنمای Reading'])); det.appendChild(el('ol',{},[el('li',{},['ایده‌ی اصلی را در یک جمله بنویس.']),el('li',{},['۳ جزئیات کلیدی را مشخص کن.']),el('li',{},['یک پاراگراف را با واژه‌های درس بازنویسی کن.'])])); r.appendChild(det); c.appendChild(r);
+  const w=el('div',{class:'card'},[]); w.appendChild(el('h3',{},['Writing (۱۲۰ کلمه) — تصحیح آفلاین/آنلاین'])); const ta=el('textarea',{rows:'8',placeholder:'اینجا بنویس...'},[]);
+  const status=el('div',{class:'muted'},['—']); const wc=el('div',{class:'muted'},['0 کلمه']); ta.addEventListener('input',()=>{const n=(ta.value.trim().match(/\\S+/g)||[]).length; wc.textContent=n+' کلمه'});
+  const off=el('button',{class:'btn secondary'},['تصحیح آفلاین']); off.onclick=()=>{const g=gradeWritingOffline(ta.value||''); status.textContent=`امتیاز: ${g.score}/100 • واژگان: ${g.vocab_hits}/${g.vocab_total} • طول: ${g.word_count} • ضمیر مستقیم: ${g.pronoun_usage?'✓':'✗'}`};
+  const on=el('button',{class:'btn'},['تصحیح آنلاین']); on.onclick=async()=>{try{status.textContent='در حال ارسال برای تصحیح آنلاین...'; const ans=await gradeOnline(ta.value||'', 'writing'); status.textContent=ans;}catch(e){status.textContent='خطا: '+e.message;}}
+  const dl=el('button',{class:'btn secondary'},['دانلود متن']); dl.onclick=()=>{const blob=new Blob([ta.value],{type:'text/plain;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='B1_L1_writing.txt'; a.click();}
+  w.appendChild(el('div',{class:'row'},[off,on,dl])); w.appendChild(ta); w.appendChild(wc); w.appendChild(status); c.appendChild(w);
+  const qf=el('div',{class:'card'},[]); qf.appendChild(el('h3',{},['Quiz نهایی'])); qf.appendChild(quizBox(DATA.quizzes.final)); c.appendChild(qf);
+}
+
+// Router
+function render(tab){const v=qs('#view'); v.innerHTML=''; if(tab==='s1')renderS1(v); if(tab==='s2')renderS2(v); if(tab==='s3')renderS3(v);}
+function initTabs(){const tabs=document.querySelectorAll('.tab'); tabs.forEach(tb=>tb.onclick=()=>{tabs.forEach(t=>t.classList.remove('active')); tb.classList.add('active'); render(tb.dataset.tab);}); render('s1');}
+buildDict(); initTabs();
+</script>
+</body>
+</html>
